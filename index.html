@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reproductor de Frecuencias Milagrosas</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
@@ -72,15 +71,16 @@
 </head>
 <body class="bg-gray-900 text-white">
     <div class="container mx-auto p-4 md:p-6 bg-gray-800 bg-opacity-70 rounded-xl shadow-2xl max-w-4xl w-full flex flex-col lg:flex-row gap-6 lg:gap-8">
-        <!-- Frequency Player Section -->
         <div class="flex-1 p-4 md:p-6 bg-gray-900 bg-opacity-80 rounded-lg shadow-lg">
             <h1 class="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center text-purple-300">Reproductor de Frecuencias Milagrosas</h1>
 
+            <div class="text-center mb-6">
+                <img src="imagen_carrusel_4k (50).png" alt="Imagen decorativa del reproductor de frecuencias" class="mx-auto rounded-lg shadow-md max-w-full h-auto" style="max-width: 250px;">
+            </div>
             <div class="mb-4 md:mb-6">
                 <label for="frequency-select" class="block text-base md:text-lg font-medium text-gray-300 mb-2">Selecciona una Frecuencia:</label>
                 <select id="frequency-select" class="w-full p-2 md:p-3 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 text-white transition duration-300 ease-in-out">
-                    <!-- Options will be populated by JavaScript -->
-                </select>
+                    </select>
             </div>
 
             <div class="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4 mb-4 md:mb-6">
@@ -92,17 +92,11 @@
                 </button>
             </div>
 
-            <!-- Timer Section -->
             <div class="mb-4 md:mb-6">
                 <label for="timer-select" class="block text-base md:text-lg font-medium text-gray-300 mb-2">Reproducir durante:</label>
                 <select id="timer-select" class="w-full p-2 md:p-3 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 text-white transition duration-300 ease-in-out">
                     <option value="0">Sin temporizador</option>
-                    <option value="3600000">1 hora</option> <!-- 1 hour in milliseconds -->
-                    <option value="7200000">2 horas</option> <!-- 2 hours in milliseconds -->
-                    <option value="14400000">4 horas</option> <!-- 4 hours in milliseconds -->
-                    <option value="21600000">6 horas</option> <!-- 6 hours in milliseconds -->
-                    <option value="28800000">8 horas</option> <!-- 8 hours in milliseconds -->
-                </select>
+                    <option value="3600000">1 hora</option> <option value="7200000">2 horas</option> <option value="14400000">4 horas</option> <option value="21600000">6 horas</option> <option value="28800000">8 horas</option> </select>
             </div>
 
             <div class="text-center text-lg md:text-xl font-semibold mb-3 text-purple-200">
@@ -112,12 +106,10 @@
                 Propósito: <span id="current-purpose">Ninguno seleccionado</span>
             </div>
 
-            <!-- Now Playing Section -->
             <div id="now-playing-section" class="bg-gray-700 bg-opacity-70 p-4 rounded-lg shadow-inner text-center hidden">
                 <h3 class="text-lg md:text-xl font-semibold mb-3 text-white">Reproduciendo Ahora:</h3>
                 <img id="cover-image" src="" alt="Cover Art" class="w-24 h-24 sm:w-32 sm:h-32 mx-auto rounded-md shadow-lg mb-4 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/150x150/333333/FFFFFF?text=No+Image';" />
                 
-                <!-- Custom HTML5 Audio Player -->
                 <audio id="audio-player" class="w-full max-w-sm mx-auto" controls>
                     Tu navegador no soporta el elemento de audio.
                 </audio>
@@ -129,7 +121,6 @@
             </div>
         </div>
 
-        <!-- Recommendation Section -->
         <div class="flex-1 p-4 md:p-6 bg-gray-900 bg-opacity-80 rounded-lg shadow-lg">
             <h2 class="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-center text-blue-300">¿Qué necesitas? (Recomendador de Frecuencias)</h2>
 
@@ -139,12 +130,11 @@
             </div>
 
             <button id="recommend-button" class="w-full px-5 py-2 md:px-6 md:py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold rounded-lg shadow-md hover:from-blue-600 hover:to-indigo-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105 mb-6">
-                Recomendar Frecuencia
-            </button>
+                    Recomendar Frecuencia
+                </button>
 
             <div id="recommendation-output" class="p-4 bg-gray-700 border border-gray-600 rounded-md shadow-inner text-center text-base md:text-lg text-yellow-200 hidden">
-                <!-- Recommendation will be displayed here -->
-            </div>
+                </div>
         </div>
     </div>
 
@@ -212,7 +202,7 @@
                 // Automatically load and play this frequency after a short delay to ensure DOM is ready
                 setTimeout(() => {
                     loadAndPlaySelectedFrequency();
-                }, 100); 
+                }, 100);
             } else {
                 // Set initial display based on the first frequency if no stored one
                 if (frequenciesData.length > 0) {
@@ -239,7 +229,7 @@
                 currentFrequencySpan.textContent = `${selectedFreqData.freq} Hz`;
                 currentPurposeSpan.textContent = selectedFreqData.purpose;
 
-                // Display cover image
+                // Display cover image within the HTML
                 coverImage.src = selectedFreqData.coverImage;
                 coverImage.alt = `Cover for ${selectedFreqData.freq} Hz`;
 
@@ -255,6 +245,32 @@
                     loadingIndicator.classList.add('hidden'); // Hide loading indicator
                     audioPlayer.play().catch(e => console.error("Error al reproducir el audio:", e));
                     playPauseButton.textContent = 'Pausar'; // Update button text
+
+                    // *** NUEVA SECCIÓN PARA LA MEDIA SESSION API ***
+                    if ('mediaSession' in navigator) { // Comprueba si el navegador soporta la API
+                        navigator.mediaSession.metadata = new MediaMetadata({
+                            title: `Frecuencia ${selectedFreqData.freq} Hz`, // Título que aparecerá en el reproductor del móvil
+                            artist: 'Frecuencias Sanadoras', // Puedes poner tu nombre o el del canal
+                            album: 'Reproductor de Frecuencias Milagrosas', // Nombre del "álbum"
+                            artwork: [ // La imagen de portada, se pueden definir varios tamaños
+                                // Es buena práctica definir varios tamaños si tienes, pero con uno es suficiente
+                                { src: selectedFreqData.coverImage, sizes: '96x96', type: 'image/png' }, // Ajusta el tipo si es JPG, etc.
+                                { src: selectedFreqData.coverImage, sizes: '128x128', type: 'image/png' },
+                                { src: selectedFreqData.coverImage, sizes: '192x192', type: 'image/png' },
+                                { src: selectedFreqData.coverImage, sizes: '256x256', type: 'image/png' },
+                                { src: selectedFreqData.coverImage, sizes: '384x384', type: 'image/png' },
+                                { src: selectedFreqData.coverImage, sizes: '512x512', type: 'image/png' },
+                            ]
+                        });
+
+                        // Opcional: Esto permite que los controles de medios del sistema operativo (pausar/reproducir) funcionen
+                        navigator.mediaSession.setActionHandler('play', () => { audioPlayer.play(); playPauseButton.textContent = 'Pausar'; });
+                        navigator.mediaSession.setActionHandler('pause', () => { audioPlayer.pause(); playPauseButton.textContent = 'Reproducir'; });
+                        navigator.mediaSession.setActionHandler('stop', () => { stopSelectedFrequency(); });
+                        // Note: 'seekbackward', 'seekforward', 'previoustrack', 'nexttrack' might be relevant for some players
+                    }
+                    // *** FIN DE LA NUEVA SECCIÓN ***
+
                     // Start timer if a duration is selected
                     if (selectedTimerDuration > 0) {
                         endTime = Date.now() + selectedTimerDuration;
