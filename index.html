@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor de Frecuencias Milagrosas</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Background image and styling */
+            background-image: url('https://res.cloudinary.com/df3hfnqhm/image/upload/v1752532743/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-14T170654.732_mhr13k.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed; /* Makes the background fixed while scrolling */
+            min-height: 100vh; /* Ensure body takes full viewport height */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #fff; /* Default text color for better contrast on background */
+        }
+        /* Overlay for better text readability on the background image */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Dark overlay */
+            z-index: -1; /* Place behind content */
+        }
+        /* Custom styling for the audio player controls */
+        .audio-player-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .audio-player-controls button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease-in-out;
+            transform: scale(1);
+        }
+        .audio-player-controls button:hover {
+            transform: scale(1.05);
+        }
+        /* Ensure responsive font sizes for smaller screens */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem; /* Smaller on mobile */
+            }
+            h2 {
+                font-size: 1.75rem; /* Smaller on mobile */
+            }
+            .text-xl {
+                font-size: 1.125rem;
+            }
+            .text-lg {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <div class="container mx-auto p-4 md:p-6 bg-gray-800 bg-opacity-70 rounded-xl shadow-2xl max-w-4xl w-full flex flex-col lg:flex-row gap-6 lg:gap-8">
+        <!-- Frequency Player Section -->
+        <div class="flex-1 p-4 md:p-6 bg-gray-900 bg-opacity-80 rounded-lg shadow-lg">
+            <h1 class="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center text-purple-300">Reproductor de Frecuencias Milagrosas</h1>
+
+            <div class="mb-4 md:mb-6">
+                <label for="frequency-select" class="block text-base md:text-lg font-medium text-gray-300 mb-2">Selecciona una Frecuencia:</label>
+                <select id="frequency-select" class="w-full p-2 md:p-3 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 text-white transition duration-300 ease-in-out">
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4 mb-4 md:mb-6">
+                <button id="play-pause-button" class="w-full sm:w-auto px-5 py-2 md:px-6 md:py-3 bg-gradient-to-r from-green-500 to-teal-500 text-white font-semibold rounded-lg shadow-md hover:from-green-600 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105">
+                    Reproducir
+                </button>
+                <button id="stop-button" class="w-full sm:w-auto px-5 py-2 md:px-6 md:py-3 bg-gradient-to-r from-red-500 to-rose-500 text-white font-semibold rounded-lg shadow-md hover:from-red-600 hover:to-rose-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105">
+                    Detener
+                </button>
+            </div>
+
+            <!-- Timer Section -->
+            <div class="mb-4 md:mb-6">
+                <label for="timer-select" class="block text-base md:text-lg font-medium text-gray-300 mb-2">Reproducir durante:</label>
+                <select id="timer-select" class="w-full p-2 md:p-3 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 text-white transition duration-300 ease-in-out">
+                    <option value="0">Sin temporizador</option>
+                    <option value="3600000">1 hora</option> <!-- 1 hour in milliseconds -->
+                    <option value="7200000">2 horas</option> <!-- 2 hours in milliseconds -->
+                    <option value="14400000">4 horas</option> <!-- 4 hours in milliseconds -->
+                    <option value="21600000">6 horas</option> <!-- 6 hours in milliseconds -->
+                    <option value="28800000">8 horas</option> <!-- 8 hours in milliseconds -->
+                </select>
+            </div>
+
+            <div class="text-center text-lg md:text-xl font-semibold mb-3 text-purple-200">
+                Frecuencia Actual: <span id="current-frequency">0 Hz</span>
+            </div>
+            <div class="text-center text-base md:text-lg text-gray-300 mb-4">
+                Propósito: <span id="current-purpose">Ninguno seleccionado</span>
+            </div>
+
+            <!-- Now Playing Section -->
+            <div id="now-playing-section" class="bg-gray-700 bg-opacity-70 p-4 rounded-lg shadow-inner text-center hidden">
+                <h3 class="text-lg md:text-xl font-semibold mb-3 text-white">Reproduciendo Ahora:</h3>
+                <img id="cover-image" src="" alt="Cover Art" class="w-24 h-24 sm:w-32 sm:h-32 mx-auto rounded-md shadow-lg mb-4 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/150x150/333333/FFFFFF?text=No+Image';" />
+                
+                <!-- Custom HTML5 Audio Player -->
+                <audio id="audio-player" class="w-full max-w-sm mx-auto" controls>
+                    Tu navegador no soporta el elemento de audio.
+                </audio>
+                <div id="loading-indicator" class="text-yellow-300 mt-2 hidden">Cargando audio...</div>
+
+                <div id="timer-display" class="text-xs sm:text-sm text-gray-300 mt-2 hidden">
+                    Tiempo restante: <span id="time-remaining"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendation Section -->
+        <div class="flex-1 p-4 md:p-6 bg-gray-900 bg-opacity-80 rounded-lg shadow-lg">
+            <h2 class="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-center text-blue-300">¿Qué necesitas? (Recomendador de Frecuencias)</h2>
+
+            <div class="mb-4">
+                <label for="user-need-input" class="block text-base md:text-lg font-medium text-gray-300 mb-2">Describe lo que necesitas o sientes:</label>
+                <textarea id="user-need-input" rows="5" class="w-full p-2 md:p-3 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-white placeholder-gray-400 transition duration-300 ease-in-out" placeholder="Ej: Necesito relajarme, quiero liberar el estrés, busco armonía en mis relaciones..."></textarea>
+            </div>
+
+            <button id="recommend-button" class="w-full px-5 py-2 md:px-6 md:py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold rounded-lg shadow-md hover:from-blue-600 hover:to-indigo-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105 mb-6">
+                Recomendar Frecuencia
+            </button>
+
+            <div id="recommendation-output" class="p-4 bg-gray-700 border border-gray-600 rounded-md shadow-inner text-center text-base md:text-lg text-yellow-200 hidden">
+                <!-- Recommendation will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data for frequencies including direct audio sources and cover images
+        const frequenciesData = [
+            // Las URLs de 'audioSrc' deben ser enlaces directos a archivos de audio (ej. .mp3, .wav).
+            // Las URLs de 'coverImage' deben ser enlaces directos a archivos de imagen (ej. .jpg, .png).
+            { freq: 111, purpose: "Claridad mental, activación cerebral, introspección", color: "Plata / Gris translúcido", chakra: "Corteza cerebral / meditación profunda", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752557041/111_Hz_qgaqpg.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752306264/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-12T024351.634_i2gyhk.png" },
+            { freq: 174, purpose: "Alivio físico, estabilidad, seguridad", color: "Rojo oscuro / Marrón tierra", chakra: "Chakra raíz", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752557220/174_Hz_l4zkym.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752304141/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-12T020827.746_zbebl7.png" },
+            { freq: 285, purpose: "Regeneración celular, restauración del aura", color: "Naranja suave / Coral claro", chakra: "Aura corporal", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752557384/285_Hz_oapaid.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752304974/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-12T022217.032_ovb1p0.png" },
+            { freq: 396, purpose: "Liberación de miedo y culpa", color: "Rojo intenso / Terracota", chakra: "Chakra raíz", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752557457/396_Hz_n8jiew.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752305206/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-12T022608.123_phbce7.png" },
+            { freq: 417, purpose: "Cambio, transmutación emocional", color: "Naranja dorado / Ámbar", chakra: "Chakra sacro", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752557579/417_Hz_bvu8dn.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752305059/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-12T022350.169_y7t4al.png" },
+            { freq: 432, purpose: "Armonía natural, conexión con la Tierra", color: "Verde oliva / Azul cielo", chakra: "Campo vibracional general", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752557615/432_Hz_qiafxi.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752305344/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-12T022829.102_goedaz.png" },
+            { freq: 528, purpose: "Amor incondicional, sanación profunda, reparación del ADN", color: "Verde esmeralda / Dorado suave", chakra: "Chakra corazón", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752557683/528_Hz_hr3tln.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752305502/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-12T023106.216_blsoj9.png" },
+            { freq: 639, purpose: "Armonía en relaciones, conexión emocional", color: "Rosa pastel / Verde claro", chakra: "Chakra corazón", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752557733/639_Hz_zlrsra.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752305648/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-12T023335.041_sralyv.png" },
+            { freq: 741, purpose: "Limpieza mental, expresión creativa", color: "Azul celeste / Azul eléctrico", chakra: "Chakra garganta", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752557801/741_Hz_l44xox.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752305838/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-12T023646.753_xcxmuh.png" },
+            { freq: 852, purpose: "Intuición, conexión espiritual", color: "Índigo profundo / Violeta", chakra: "Chakra tercer ojo", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752564090/852_Hz_xffihv.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752305928/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-12T023823.551_noci2d.png" },
+            { freq: 888, purpose: "Abundancia, prosperidad, flujo energético", color: "Dorado metálico / Amarillo solar", chakra: "Plexo solar / campo de manifestación", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752565885/888_Hz_xdtatu.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752306091/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-12T024015.780_eopsbq.png" },
+            { freq: 963, purpose: "Conciencia divina, conexión con la fuente", color: "Blanco luminoso / Dorado brillante", chakra: "Chakra corona", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752564390/963_Hz_fbgyto.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752564892/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-15T023321.135_e4dpxi.png" },
+            { freq: 999, purpose: "Finalización de ciclos, elevación espiritual", color: "Violeta brillante / Blanco perla", chakra: "Chakra superior / transición", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752566229/999_Hz_wwtj3b.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752306556/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-12T024758.796_z05lhr.png" }
+        ];
+
+        // Get DOM elements
+        const frequencySelect = document.getElementById('frequency-select');
+        const playPauseButton = document.getElementById('play-pause-button');
+        const stopButton = document.getElementById('stop-button');
+        const timerSelect = document.getElementById('timer-select');
+        const currentFrequencySpan = document.getElementById('current-frequency');
+        const currentPurposeSpan = document.getElementById('current-purpose');
+        const userNeedInput = document.getElementById('user-need-input');
+        const recommendButton = document.getElementById('recommend-button');
+        const recommendationOutput = document.getElementById('recommendation-output');
+        const nowPlayingSection = document.getElementById('now-playing-section');
+        const coverImage = document.getElementById('cover-image');
+        const audioPlayer = document.getElementById('audio-player');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const timerDisplay = document.getElementById('timer-display');
+        const timeRemainingSpan = document.getElementById('time-remaining');
+
+        let currentLoadedFrequencyData = null; // Stores the data of the currently loaded frequency
+        let timerTimeoutId = null; // Stores the ID of the setTimeout for the timer
+        let timerIntervalId = null; // Stores the ID of the setInterval for updating the timer display
+        let endTime = 0; // Stores the timestamp when the timer should end
+
+        // Key for localStorage to store selected frequency across refreshes
+        const LOCAL_STORAGE_FREQ_KEY = 'selectedFrequencyToPlayAfterRefresh';
+
+        // Populate the frequency dropdown
+        function populateFrequencies() {
+            frequenciesData.sort((a, b) => a.freq - b.freq); // Sort by frequency
+            frequencySelect.innerHTML = ''; // Clear existing options
+            frequenciesData.forEach(data => {
+                const option = document.createElement('option');
+                option.value = data.freq;
+                option.textContent = `${data.freq} Hz - ${data.purpose}`;
+                frequencySelect.appendChild(option);
+            });
+
+            // Check if there's a frequency to play from localStorage
+            const storedFreq = localStorage.getItem(LOCAL_STORAGE_FREQ_KEY);
+            if (storedFreq) {
+                frequencySelect.value = storedFreq; // Select it in the dropdown
+                localStorage.removeItem(LOCAL_STORAGE_FREQ_KEY); // Clear it immediately
+                // Automatically load and play this frequency after a short delay to ensure DOM is ready
+                setTimeout(() => {
+                    loadAndPlaySelectedFrequency();
+                }, 100); 
+            } else {
+                // Set initial display based on the first frequency if no stored one
+                if (frequenciesData.length > 0) {
+                    const initialFreqData = frequenciesData[0];
+                    currentFrequencySpan.textContent = `${initialFreqData.freq} Hz`;
+                    currentPurposeSpan.textContent = initialFreqData.purpose;
+                }
+            }
+        }
+
+        // Function to load and play the selected frequency
+        function loadAndPlaySelectedFrequency() {
+            const selectedFreqValue = parseFloat(frequencySelect.value);
+            const selectedFreqData = frequenciesData.find(d => d.freq === selectedFreqValue);
+            const selectedTimerDuration = parseInt(timerSelect.value); // Get selected timer duration in milliseconds
+
+            if (selectedFreqData) {
+                currentLoadedFrequencyData = selectedFreqData;
+
+                // Clear any existing timers
+                clearTimer();
+
+                // Update current frequency and purpose display
+                currentFrequencySpan.textContent = `${selectedFreqData.freq} Hz`;
+                currentPurposeSpan.textContent = selectedFreqData.purpose;
+
+                // Display cover image
+                coverImage.src = selectedFreqData.coverImage;
+                coverImage.alt = `Cover for ${selectedFreqData.freq} Hz`;
+
+                // Set audio source and load, adding a cache-busting parameter
+                audioPlayer.src = `${selectedFreqData.audioSrc}?v=${Date.now()}`; // Add unique timestamp for cache busting
+                audioPlayer.load(); // Load the new audio
+                
+                loadingIndicator.classList.remove('hidden'); // Show loading indicator
+                nowPlayingSection.classList.remove('hidden'); // Show the now playing section
+
+                // Play audio once it can be played
+                audioPlayer.oncanplaythrough = () => {
+                    loadingIndicator.classList.add('hidden'); // Hide loading indicator
+                    audioPlayer.play().catch(e => console.error("Error al reproducir el audio:", e));
+                    playPauseButton.textContent = 'Pausar'; // Update button text
+                    // Start timer if a duration is selected
+                    if (selectedTimerDuration > 0) {
+                        endTime = Date.now() + selectedTimerDuration;
+                        timerDisplay.classList.remove('hidden');
+                        updateTimerDisplay(); // Initial display
+                        timerIntervalId = setInterval(updateTimerDisplay, 1000); // Update every second
+
+                        timerTimeoutId = setTimeout(() => {
+                            stopSelectedFrequency();
+                            alert('El temporizador ha finalizado. La frecuencia se ha detenido.');
+                        }, selectedTimerDuration);
+                    } else {
+                        timerDisplay.classList.add('hidden'); // Hide timer if no duration selected
+                    }
+                };
+
+                audioPlayer.onerror = (e) => {
+                    loadingIndicator.classList.add('hidden');
+                    console.error("Error al cargar o reproducir el audio:", e.target.error.code, e.target.error.message, e);
+                    alert(`Error al cargar el audio. Esto puede deberse a que la URL del archivo no es directa o hay problemas de CORS. Por favor, verifica la URL del archivo y asegúrate de que esté alojado para streaming (ej. Cloudinary, GitHub Pages, Netlify). Código de error: ${e.target.error.code || 'N/A'}. Revisa la consola (F12) para más detalles.`);
+                    stopSelectedFrequency();
+                };
+
+            } else {
+                console.error("No se encontraron datos para la frecuencia seleccionada.");
+                stopSelectedFrequency(); // Clear if no data found
+            }
+        }
+
+        // Function to toggle play/pause
+        function togglePlayPause() {
+            if (audioPlayer.paused) {
+                audioPlayer.play().catch(e => console.error("Error al reproducir el audio:", e));
+                playPauseButton.textContent = 'Pausar';
+                // If a timer was set and audio was paused, resume timer as well
+                if (endTime > 0 && timerTimeoutId === null) {
+                    const remainingTime = endTime - Date.now();
+                    if (remainingTime > 0) {
+                        timerTimeoutId = setTimeout(() => {
+                            stopSelectedFrequency();
+                            alert('El temporizador ha finalizado. La frecuencia se ha detenido.');
+                        }, remainingTime);
+                        timerIntervalId = setInterval(updateTimerDisplay, 1000);
+                        timerDisplay.classList.remove('hidden');
+                    }
+                }
+            } else {
+                audioPlayer.pause();
+                playPauseButton.textContent = 'Reproducir';
+                // Pause timer as well
+                clearTimeout(timerTimeoutId);
+                clearInterval(timerIntervalId);
+                timerTimeoutId = null;
+                timerIntervalId = null;
+            }
+        }
+
+        // Function to stop/clear the currently loaded frequency
+        function stopSelectedFrequency() {
+            clearTimer(); // Clear any active timers
+            audioPlayer.pause();
+            audioPlayer.currentTime = 0; // Reset playback to start
+            audioPlayer.src = ''; // Clear audio source. This prevents "Empty src attribute" errors.
+            coverImage.src = ''; // Clear cover image
+            coverImage.alt = 'Cover Art';
+            nowPlayingSection.classList.add('hidden'); // Hide the now playing section
+            loadingIndicator.classList.add('hidden'); // Hide loading indicator
+            currentLoadedFrequencyData = null; // Clear loaded frequency data
+            currentFrequencySpan.textContent = '0 Hz';
+            currentPurposeSpan.textContent = 'Ninguno seleccionado';
+            playPauseButton.textContent = 'Reproducir'; // Reset button text
+        }
+
+        // Function to clear any active timers
+        function clearTimer() {
+            if (timerTimeoutId) {
+                clearTimeout(timerTimeoutId);
+                timerTimeoutId = null;
+            }
+            if (timerIntervalId) {
+                clearInterval(timerIntervalId);
+                timerIntervalId = null;
+            }
+            timerDisplay.classList.add('hidden'); // Hide timer display
+            timeRemainingSpan.textContent = ''; // Clear time remaining
+            endTime = 0;
+        }
+
+        // Function to update the timer display
+        function updateTimerDisplay() {
+            const now = Date.now();
+            const remaining = endTime - now;
+
+            if (remaining <= 0) {
+                timeRemainingSpan.textContent = '00:00:00';
+                clearTimer(); // Timer has finished, clear it
+                stopSelectedFrequency(); // Ensure audio stops if timer ends
+                return;
+            }
+
+            const hours = Math.floor(remaining / (1000 * 60 * 60));
+            const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+
+            timeRemainingSpan.textContent =
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        // Event listener for Play/Pause button
+        playPauseButton.addEventListener('click', () => {
+            // If no frequency is loaded, load and play the selected one
+            if (!currentLoadedFrequencyData || audioPlayer.src === '') {
+                loadAndPlaySelectedFrequency();
+            } else {
+                // Otherwise, just toggle play/pause
+                togglePlayPause();
+            }
+        });
+
+        // Event listener for Stop button
+        stopButton.addEventListener('click', stopSelectedFrequency);
+
+        // Event listener for frequency selection change (updates purpose, doesn't auto-play)
+        frequencySelect.addEventListener('change', () => {
+            const selectedFreqValue = parseFloat(frequencySelect.value);
+            const selectedFreqData = frequenciesData.find(d => d.freq === selectedFreqValue);
+            if (selectedFreqData) {
+                currentFrequencySpan.textContent = `${selectedFreqData.freq} Hz`;
+                currentPurposeSpan.textContent = selectedFreqData.purpose;
+                // If audio is playing or loaded, store the selection and force a page reload
+                if (audioPlayer.src !== '') { // Check if a source is currently set
+                    localStorage.setItem(LOCAL_STORAGE_FREQ_KEY, selectedFreqValue); // Store the new selection
+                    location.reload(); // Force a full page refresh
+                } else {
+                    // If no audio is loaded, just update display and wait for play button
+                    stopSelectedFrequency(); // Ensure clean state if changing selection without playing
+                }
+            }
+        });
+
+        // Listen for when the audio finishes playing on its own
+        audioPlayer.addEventListener('ended', () => {
+            stopSelectedFrequency();
+            alert('La reproducción de la frecuencia ha finalizado.');
+        });
+
+        // --- Recommendation Logic ---
+        function recommendFrequency() {
+            const userInput = userNeedInput.value.toLowerCase().trim();
+            if (!userInput) {
+                recommendationOutput.textContent = "Por favor, describe lo que necesitas para que pueda recomendarte una frecuencia.";
+                recommendationOutput.classList.remove('hidden');
+                return;
+            }
+
+            let bestMatch = null;
+            let maxScore = 0;
+
+            frequenciesData.forEach(data => {
+                let score = 0;
+                // Combine purpose and chakra for keyword matching
+                const keywords = (data.purpose + ' ' + data.chakra).toLowerCase().split(/[\s,/\-]+/).filter(Boolean);
+
+                keywords.forEach(keyword => {
+                    if (userInput.includes(keyword)) {
+                        score++;
+                    }
+                });
+
+                // Add score for direct frequency numbers if mentioned (unlikely but possible)
+                if (userInput.includes(data.freq.toString())) {
+                    score += 2; // Higher score for direct mention
+                }
+
+                if (score > maxScore) {
+                    maxScore = score;
+                    bestMatch = data;
+                } else if (score === maxScore && bestMatch === null) {
+                    // If multiple have same score, take the first one found
+                    bestMatch = data;
+                }
+            });
+
+            if (bestMatch) {
+                recommendationOutput.innerHTML = `
+                    <p class="mb-2">Te recomendamos la frecuencia de <span class="font-bold text-yellow-400">${bestMatch.freq} Hz</span>.</p>
+                    <p>Su propósito es: <span class="font-bold">${bestMatch.purpose}</span>.</p>
+                    <p class="mt-2 text-sm text-gray-300">Puedes seleccionarla en el reproductor de arriba y hacer clic en "Reproducir" para escucharla.</p>
+                `;
+                recommendationOutput.classList.remove('hidden');
+                // Automatically select the recommended frequency in the dropdown
+                frequencySelect.value = bestMatch.freq;
+                // Update display immediately (but don't auto-play the audio)
+                currentFrequencySpan.textContent = `${bestMatch.freq} Hz`;
+                currentPurposeSpan.textContent = bestMatch.purpose;
+            } else {
+                recommendationOutput.textContent = "No pude encontrar una frecuencia que coincida directamente con tu descripción. Por favor, intenta con otras palabras o explora las frecuencias manualmente.";
+                recommendationOutput.classList.remove('hidden');
+            }
+        }
+
+        // Event listener for recommend button
+        recommendButton.addEventListener('click', recommendFrequency);
+
+        // Initial population of frequencies when the page loads
+        document.addEventListener('DOMContentLoaded', populateFrequencies);
+    </script>
+</body>
+</html>
