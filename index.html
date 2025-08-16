@@ -14,16 +14,16 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            background-attachment: fixed; /* Makes the background fixed while scrolling */
-            min-height: 100vh; /* Ensure body takes full viewport height */
+            background-attachment: fixed;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            color: #fff; /* Default text color for better contrast on background */
+            color: #fff;
+            position: relative;
         }
-        /* Overlay for better text readability on the background image */
         body::before {
             content: "";
             position: absolute;
@@ -31,291 +31,494 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); /* Dark overlay */
-            z-index: -1; /* Place behind content */
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: -1;
         }
-        /* Custom styling for the audio player controls */
-        .audio-player-controls {
+        .main-container {
+            background: linear-gradient(135deg, rgba(31, 41, 55, 0.9) 0%, rgba(17, 24, 39, 0.9) 100%);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
             display: flex;
-            align-items: center;
             justify-content: center;
-            gap: 1rem;
-            margin-top: 1rem;
+            align-items: center;
+            z-index: 1000;
         }
-        .audio-player-controls button {
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            transition: all 0.3s ease-in-out;
-            transform: scale(1);
+        .modal-content {
+            background-color: #1a202c;
+            border: 2px solid #6b46c1;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            max-width: 90%;
+            width: 400px;
+            text-align: center;
         }
-        .audio-player-controls button:hover {
-            transform: scale(1.05);
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 5px #6b46c1; }
+            50% { box-shadow: 0 0 20px #9f7aea; }
+            100% { box-shadow: 0 0 5px #6b46c1; }
         }
-        /* Ensure responsive font sizes for smaller screens */
+        #now-playing-section.playing {
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+        .player-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
         @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem; /* Smaller on mobile */
+            .main-container {
+                flex-direction: column;
+                padding: 1rem;
+                background: rgba(17, 24, 39, 0.9);
             }
-            h2 {
-                font-size: 1.75rem; /* Smaller on mobile */
+            .player-container {
+                background: linear-gradient(to bottom, #2d3748, #1a202c);
+                padding: 1rem;
+                border-radius: 1rem;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
             }
-            .text-xl {
-                font-size: 1.125rem;
+            .player-info {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                margin-top: 1rem;
+                text-align: center;
             }
-            .text-lg {
+            .player-info h1 {
+                font-size: 1.5rem;
+            }
+            .player-info h2 {
                 font-size: 1rem;
             }
+            .player-controls-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 1.5rem;
+                margin-top: 1.5rem;
+            }
+            .player-controls-container button {
+                width: 3.5rem;
+                height: 3.5rem;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                border-radius: 50%;
+                background-color: #4b5563;
+                border: none;
+                transition: transform 0.2s;
+            }
+            .player-controls-container button:hover {
+                transform: scale(1.1);
+            }
+            .player-controls-container .main-play-button {
+                width: 5rem;
+                height: 5rem;
+                background: linear-gradient(to bottom, #4f46e5, #8b5cf6);
+            }
+            .player-controls-container .main-play-button svg {
+                width: 2.5rem;
+                height: 2.5rem;
+            }
+            .player-controls-container svg {
+                width: 2rem;
+                height: 2rem;
+                fill: white;
+            }
+            .progress-container, .volume-container {
+                width: 90%;
+                margin: 1rem auto;
+            }
+            .slider {
+                -webkit-appearance: none;
+                width: 100%;
+                height: 0.25rem;
+                background: #4b5563;
+                outline: none;
+                opacity: 0.7;
+                transition: opacity .2s;
+                border-radius: 9999px;
+            }
+            .slider:hover {
+                opacity: 1;
+            }
+            .slider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 1rem;
+                height: 1rem;
+                background: #8b5cf6;
+                cursor: pointer;
+                border-radius: 50%;
+            }
+            .slider::-moz-range-thumb {
+                width: 1rem;
+                height: 1rem;
+                background: #8b5cf6;
+                cursor: pointer;
+                border-radius: 50%;
+                border-radius: 50%;
+            }
+            #cover-image {
+                width: 100%;
+                height: auto;
+                max-width: 300px;
+                max-height: 300px;
+                border-radius: 0.75rem;
+            }
+            .timer-and-progress {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
+            }
+            .timer-and-progress span {
+                font-size: 0.875rem;
+            }
+            .frequency-list-container {
+                margin-top: 2rem;
+            }
+            .frequency-list {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                overflow-y: hidden;
+                max-height: 0;
+                transition: max-height 0.5s ease-in-out;
+            }
+            .frequency-list.open {
+                max-height: 400px;
+                overflow-y: auto;
+            }
+            .frequency-list-item {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding: 0.75rem;
+                background-color: rgba(45, 55, 72, 0.7);
+                border-radius: 0.5rem;
+                cursor: pointer;
+                transition: background-color 0.2s;
+            }
+            .frequency-list-item:hover {
+                background-color: rgba(45, 55, 72, 1);
+            }
+            .frequency-list-item.selected {
+                border: 2px solid #9f7aea;
+                background-color: rgba(76, 52, 137, 0.8);
+            }
+            .frequency-list-item img {
+                width: 50px;
+                height: 50px;
+                border-radius: 0.25rem;
+            }
+        }
+        .rotate-180 {
+            transform: rotate(180deg);
         }
     </style>
-
-    <link rel="manifest" href="/manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png"> </head>
+</head>
 <body class="bg-gray-900 text-white">
-    <div class="container mx-auto p-4 md:p-6 bg-gray-800 bg-opacity-70 rounded-xl shadow-2xl max-w-4xl w-full flex flex-col lg:flex-row gap-6 lg:gap-8">
-        <div class="flex-1 p-4 md:p-6 bg-gray-900 bg-opacity-80 rounded-lg shadow-lg">
-            <h1 class="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center text-purple-300">Reproductor de Frecuencias Milagrosas</h1>
+    <!-- Custom Modal Structure -->
+    <div id="custom-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <p id="modal-message" class="text-white text-lg mb-4"></p>
+            <button id="modal-close-button" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-md transition duration-300">
+                Cerrar
+            </button>
+        </div>
+    </div>
 
-            <div class="text-center mb-6">
-                <img src="imagen_carrusel_4k (50).png" alt="Imagen decorativa del reproductor de frecuencias" class="mx-auto rounded-lg shadow-md max-w-full h-auto" style="max-width: 250px;">
-            </div>
-            <div class="mb-4 md:mb-6">
-                <label for="frequency-select" class="block text-base md:text-lg font-medium text-gray-300 mb-2">Selecciona una Frecuencia:</label>
-                <select id="frequency-select" class="w-full p-2 md:p-3 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 text-white transition duration-300 ease-in-out">
-                    </select>
-            </div>
+    <div class="main-container container mx-auto p-4 md:p-6 rounded-xl shadow-2xl max-w-4xl w-full flex flex-col lg:flex-row gap-6 lg:gap-8">
+        <!-- Player Section -->
+        <div class="flex-1 p-4 md:p-6 bg-gray-900 bg-opacity-80 rounded-lg shadow-lg player-container">
+            <!-- No title here, for a cleaner, more mobile-centric look -->
+            <div class="player-content">
+                <div class="text-center mb-6 w-full">
+                    <!-- Dynamic cover image -->
+                    <img id="cover-image" src="" alt="Portada" class="mx-auto rounded-lg shadow-md max-w-full h-auto" style="max-width: 250px;">
+                </div>
 
-            <div class="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4 mb-4 md:mb-6">
-                <button id="play-pause-button" class="w-full sm:w-auto px-5 py-2 md:px-6 md:py-3 bg-gradient-to-r from-green-500 to-teal-500 text-white font-semibold rounded-lg shadow-md hover:from-green-600 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105">
-                    Reproducir
-                </button>
-                <button id="stop-button" class="w-full sm:w-auto px-5 py-2 md:px-6 md:py-3 bg-gradient-to-r from-red-500 to-rose-500 text-white font-semibold rounded-lg shadow-md hover:from-red-600 hover:to-rose-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105">
-                    Detener
-                </button>
-            </div>
+                <div class="player-info w-full">
+                    <div class="flex items-center justify-center gap-4 mb-2">
+                        <div>
+                            <h2 id="current-frequency" class="text-2xl font-bold">0 Hz</h2>
+                            <p id="current-purpose" class="text-gray-300 text-lg">Ninguna seleccionada</p>
+                        </div>
+                    </div>
+                </div>
 
-            <div class="mb-4 md:mb-6">
-                <label for="timer-select" class="block text-base md:text-lg font-medium text-gray-300 mb-2">Reproducir durante:</label>
-                <select id="timer-select" class="w-full p-2 md:p-3 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 text-white transition duration-300 ease-in-out">
-                    <option value="0">Sin temporizador</option>
-                    <option value="3600000">1 hora</option> <option value="7200000">2 horas</option> <option value="14400000">4 horas</option> <option value="21600000">6 horas</option> <option value="28800000">8 horas</option> </select>
-            </div>
+                <div id="progress-container" class="w-full mt-4">
+                    <div class="timer-and-progress">
+                        <span id="current-time-display">0:00</span>
+                        <input type="range" id="progress-slider" class="slider" value="0" max="0">
+                        <span id="duration-display">0:00</span>
+                    </div>
+                    <div class="flex justify-center mt-2">
+                        <!-- Botón de play pequeño bajo el contador -->
+                        <button id="small-play-pause-button" class="main-play-button w-12 h-12">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path id="small-play-icon" d="M8 5V19L19 12L8 5Z" fill="white"/>
+                                <path id="small-pause-icon" d="M6 19H10V5H6V19ZM14 5V19H18V5H14Z" fill="white" class="hidden"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
 
-            <div class="text-center text-lg md:text-xl font-semibold mb-3 text-purple-200">
-                Frecuencia Actual: <span id="current-frequency">0 Hz</span>
-            </div>
-            <div class="text-center text-base md:text-lg text-gray-300 mb-4">
-                Propósito: <span id="current-purpose">Ninguno seleccionado</span>
-            </div>
+                <div class="player-controls-container w-full mt-6">
+                    <button id="play-pause-button" class="main-play-button">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path id="play-icon" d="M8 5V19L19 12L8 5Z" fill="white"/>
+                            <path id="pause-icon" d="M6 19H10V5H6V19ZM14 5V19H18V5H14Z" fill="white" class="hidden"/>
+                        </svg>
+                    </button>
+                </div>
 
-            <div id="now-playing-section" class="bg-gray-700 bg-opacity-70 p-4 rounded-lg shadow-inner text-center hidden">
-                <h3 class="text-lg md:text-xl font-semibold mb-3 text-white">Reproduciendo Ahora:</h3>
-                <img id="cover-image" src="" alt="Cover Art" class="w-24 h-24 sm:w-32 sm:h-32 mx-auto rounded-md shadow-lg mb-4 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/150x150/333333/FFFFFF?text=No+Image';" />
-                
-                <audio id="audio-player" class="w-full max-w-sm mx-auto" controls>
+                <div class="volume-container w-full mt-6 flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-volume-2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                    <input type="range" id="volume-slider" class="slider" min="0" max="1" step="0.01" value="0.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-volume-x"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" x2="16" y1="9" y2="15"/><line x1="16" x2="22" y1="9" y2="15"/></svg>
+                </div>
+
+                <audio id="audio-player" class="w-full max-w-sm mx-auto hidden" controls>
                     Tu navegador no soporta el elemento de audio.
                 </audio>
-                <div id="loading-indicator" class="text-yellow-300 mt-2 hidden">Cargando audio...</div>
 
-                <div id="timer-display" class="text-xs sm:text-sm text-gray-300 mt-2 hidden">
-                    Tiempo restante: <span id="time-remaining"></span>
+                <div id="now-playing-section" class="bg-gray-700 bg-opacity-70 p-4 rounded-lg shadow-inner text-center hidden transition duration-500 ease-in-out">
+                    <h3 class="text-lg md:text-xl font-semibold mb-3 text-white">Reproduciendo Ahora:</h3>
+                    <div id="loading-indicator" class="text-yellow-300 mt-2 hidden">Cargando audio...</div>
+                    <div id="timer-display" class="text-xs sm:text-sm text-gray-300 mt-2 hidden">
+                        Tiempo restante: <span id="time-remaining"></span>
+                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- Recommender and Frequency List Section -->
         <div class="flex-1 p-4 md:p-6 bg-gray-900 bg-opacity-80 rounded-lg shadow-lg">
             <h2 class="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-center text-blue-300">¿Qué necesitas? (Recomendador de Frecuencias)</h2>
-
+            
+            <!-- Timer select dropdown has been added back here -->
+            <div class="mb-4 md:mb-6">
+                <label for="timer-select" class="block text-base md:text-lg font-medium text-gray-300 mb-2">Reproducir durante:</label>
+                <select id="timer-select" class="w-full p-2 md:p-3 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 text-white transition duration-300 ease-in-out">
+                    <option value="0">Sin temporizador</option>
+                    <option value="3600000">1 hora</option>
+                    <option value="7200000">2 horas</option>
+                    <option value="14400000">4 horas</option>
+                    <option value="21600000">6 horas</option>
+                    <option value="28800000">8 horas</option>
+                </select>
+            </div>
+            
             <div class="mb-4">
                 <label for="user-need-input" class="block text-base md:text-lg font-medium text-gray-300 mb-2">Describe lo que necesitas o sientes:</label>
                 <textarea id="user-need-input" rows="5" class="w-full p-2 md:p-3 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-white placeholder-gray-400 transition duration-300 ease-in-out" placeholder="Ej: Necesito relajarme, quiero liberar el estrés, busco armonía en mis relaciones..."></textarea>
             </div>
-
             <button id="recommend-button" class="w-full px-5 py-2 md:px-6 md:py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold rounded-lg shadow-md hover:from-blue-600 hover:to-indigo-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105 mb-6">
-                    Recomendar Frecuencia
-                </button>
-
+                Recomendar Frecuencia
+            </button>
             <div id="recommendation-output" class="p-4 bg-gray-700 border border-gray-600 rounded-md shadow-inner text-center text-base md:text-lg text-yellow-200 hidden">
+            </div>
+
+            <!-- Frequency List Section with collapsible button -->
+            <div class="frequency-list-container mt-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-gray-200">Frecuencias Disponibles</h3>
+                    <button id="toggle-list-button" class="text-gray-400 hover:text-white transition-colors duration-200">
+                        <svg id="toggle-list-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
+                    </button>
                 </div>
+                <div id="frequency-list" class="frequency-list open">
+                    <!-- Frequency items will be dynamically inserted here -->
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
         // Data for frequencies including direct audio sources and cover images
         const frequenciesData = [
-            // Las URLs de 'audioSrc' deben ser enlaces directos a archivos de audio (ej. .mp3, .wav).
-            // Las URLs de 'coverImage' deben ser enlaces directos a archivos de imagen (ej. .jpg, .png).
-            { freq: 111, purpose: "Claridad mental, activación cerebral, introspección", color: "Plata / Gris translúcido", chakra: "Corteza cerebral / meditación profunda", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752557041/111_Hz_qgaqpg.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752306264/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-12T024351.634_i2gyhk.png" },
-            { freq: 174, purpose: "Alivio físico, estabilidad, seguridad", color: "Rojo oscuro / Marrón tierra", chakra: "Chakra raíz", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752557220/174_Hz_l4zkym.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752304141/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-12T020827.746_zbebl7.png" },
-            { freq: 285, purpose: "Regeneración celular, restauración del aura", color: "Naranja suave / Coral claro", chakra: "Aura corporal", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752557384/285_Hz_oapaid.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752304974/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-12T022217.032_ovb1p0.png" },
-            { freq: 396, purpose: "Liberación de miedo y culpa", color: "Rojo intenso / Terracota", chakra: "Chakra raíz", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752557457/396_Hz_n8jiew.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752305206/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-12T022608.123_phbce7.png" },
-            { freq: 417, purpose: "Cambio, transmutación emocional", color: "Naranja dorado / Ámbar", chakra: "Chakra sacro", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752557579/417_Hz_bvu8dn.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752305059/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-12T022350.169_y7t4al.png" },
-            { freq: 432, purpose: "Armonía natural, conexión con la Tierra", color: "Verde oliva / Azul cielo", chakra: "Campo vibracional general", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752557615/432_Hz_qiafxi.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752305344/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-12T022829.102_goedaz.png" },
-            { freq: 528, purpose: "Amor incondicional, sanación profunda, reparación del ADN", color: "Verde esmeralda / Dorado suave", chakra: "Chakra corazón", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752557683/528_Hz_hr3tln.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752305502/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-12T023106.216_blsoj9.png" },
-            { freq: 639, purpose: "Armonía en relaciones, conexión emocional", color: "Rosa pastel / Verde claro", chakra: "Chakra corazón", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752557733/639_Hz_zlrsra.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752305648/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-12T023335.041_sralyv.png" },
-            { freq: 741, purpose: "Limpieza mental, expresión creativa", color: "Azul celeste / Azul eléctrico", chakra: "Chakra garganta", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752557801/741_Hz_l44xox.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752305838/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-12T023646.753_xcxmuh.png" },
-            { freq: 852, purpose: "Intuición, conexión espiritual", color: "Índigo profundo / Violeta", chakra: "Chakra tercer ojo", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752564090/852_Hz_xffihv.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752305928/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-12T023823.551_noci2d.png" },
-            { freq: 888, purpose: "Abundancia, prosperidad, flujo energético", color: "Dorado metálico / Amarillo solar", chakra: "Plexo solar / campo de manifestación", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752565885/888_Hz_xdtatu.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752306091/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-12T024015.780_eopsbq.png" },
-            { freq: 963, purpose: "Conciencia divina, conexión con la fuente", color: "Blanco luminoso / Dorado brillante", chakra: "Chakra corona", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752564390/963_Hz_fbgyto.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752564892/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-15T023321.135_e4dpxi.png" },
-            { freq: 999, purpose: "Finalización de ciclos, elevación espiritual", color: "Violeta brillante / Blanco perla", chakra: "Chakra superior / transición", audioSrc: "https://res.cloudinary.com/df3hfnqhm/video/upload/v1752566229/999_Hz_wwtj3b.mp3", coverImage: "https://res.cloudinary.com/df3hfnqhm/image/upload/v1752306556/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-12T024758.796_z05lhr.png" }
+            { freq: 111, purpose: "Claridad mental, activación cerebral, introspección", color: "Plata / Gris translúcido", chakra: "Corteza cerebral / meditación profunda", audioSrc: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/111+Hz.mp3", coverImage: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/111.png" },
+            { freq: 174, purpose: "Alivio físico, estabilidad, seguridad", color: "Rojo oscuro / Marrón tierra", chakra: "Chakra raíz", audioSrc: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/174+Hz.mp3", coverImage: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/174.png" },
+            { freq: 285, purpose: "Regeneración celular, restauración del aura", color: "Naranja suave / Coral claro", chakra: "Aura corporal", audioSrc: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/285+Hz.mp3", coverImage: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/285.png" },
+            { freq: 396, purpose: "Liberación de miedo y culpa", color: "Rojo intenso / Terracota", chakra: "Chakra raíz", audioSrc: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/396+Hz.mp3", coverImage: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/396.png" },
+            { freq: 417, purpose: "Cambio, transmutación emocional", color: "Naranja dorado / Ámbar", chakra: "Chakra sacro", audioSrc: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/417+Hz.mp3", coverImage: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/417.png" },
+            { freq: 432, purpose: "Armonía natural, conexión con la Tierra", color: "Verde oliva / Azul cielo", chakra: "Campo vibracional general", audioSrc: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/432+Hz.mp3", coverImage: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/432.png" },
+            { freq: 528, purpose: "Amor incondicional, sanación profunda, reparación del ADN", color: "Verde esmeralda / Dorado suave", chakra: "Chakra corazón", audioSrc: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/528+Hz.mp3", coverImage: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/528.png" },
+            { freq: 639, purpose: "Armonía en relaciones, conexión emocional", color: "Rosa pastel / Verde claro", chakra: "Chakra corazón", audioSrc: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/639+Hz.mp3", coverImage: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/639.png" },
+            { freq: 741, purpose: "Limpieza mental, expresión creativa", color: "Azul celeste / Azul eléctrico", chakra: "Chakra garganta", audioSrc: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/741+Hz.mp3", coverImage: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/741.png" },
+            { freq: 852, purpose: "Intuición, conexión espiritual", color: "Índigo profundo / Violeta", chakra: "Chakra tercer ojo", audioSrc: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/852+Hz.mp3", coverImage: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/852.png" },
+            { freq: 888, purpose: "Abundancia, prosperidad, flujo energético", color: "Dorado metálico / Amarillo solar", chakra: "Plexo solar / campo de manifestación", audioSrc: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/888+Hz.mp3", coverImage: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/888.png" },
+            { freq: 963, purpose: "Conciencia divina, conexión con la fuente", color: "Blanco luminoso / Dorado brillante", chakra: "Chakra corona", audioSrc: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/963+Hz.mp3", coverImage: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/963.png" },
+            { freq: 999, purpose: "Finalización de ciclos, elevación espiritual", color: "Violeta brillante / Blanco perla", chakra: "Chakra superior / transición", audioSrc: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/999+Hz.mp3", coverImage: "https://f005.backblazeb2.com/file/mis-frecuencias-musicales/999.png" }
         ];
 
         // Get DOM elements
-        const frequencySelect = document.getElementById('frequency-select');
         const playPauseButton = document.getElementById('play-pause-button');
-        const stopButton = document.getElementById('stop-button');
+        const smallPlayPauseButton = document.getElementById('small-play-pause-button');
         const timerSelect = document.getElementById('timer-select');
         const currentFrequencySpan = document.getElementById('current-frequency');
         const currentPurposeSpan = document.getElementById('current-purpose');
         const userNeedInput = document.getElementById('user-need-input');
         const recommendButton = document.getElementById('recommend-button');
         const recommendationOutput = document.getElementById('recommendation-output');
-        const nowPlayingSection = document.getElementById('now-playing-section');
         const coverImage = document.getElementById('cover-image');
         const audioPlayer = document.getElementById('audio-player');
         const loadingIndicator = document.getElementById('loading-indicator');
         const timerDisplay = document.getElementById('timer-display');
         const timeRemainingSpan = document.getElementById('time-remaining');
+        const customModal = document.getElementById('custom-modal');
+        const modalMessage = document.getElementById('modal-message');
+        const modalCloseButton = document.getElementById('modal-close-button');
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        const smallPlayIcon = document.getElementById('small-play-icon');
+        const smallPauseIcon = document.getElementById('small-pause-icon');
+        const progressSlider = document.getElementById('progress-slider');
+        const volumeSlider = document.getElementById('volume-slider');
+        const currentTimeDisplay = document.getElementById('current-time-display');
+        const durationDisplay = document.getElementById('duration-display');
+        const frequencyListContainer = document.getElementById('frequency-list');
+        const toggleListButton = document.getElementById('toggle-list-button');
+        const toggleListIcon = document.getElementById('toggle-list-icon');
+        const nowPlayingSection = document.getElementById('now-playing-section');
+        const progressContainer = document.getElementById('progress-container');
 
-        let currentLoadedFrequencyData = null; // Stores the data of the currently loaded frequency
-        let timerTimeoutId = null; // Stores the ID of the setTimeout for the timer
-        let timerIntervalId = null; // Stores the ID of the setInterval for updating the timer display
-        let endTime = 0; // Stores the timestamp when the timer should end
 
-        // Key for localStorage to store selected frequency across refreshes
-        const LOCAL_STORAGE_FREQ_KEY = 'selectedFrequencyToPlayAfterRefresh';
+        let currentTrackIndex = 0;
+        let timerTimeoutId = null;
+        let timerIntervalId = null;
+        let endTime = 0;
 
-        // Populate the frequency dropdown
-        function populateFrequencies() {
-            frequenciesData.sort((a, b) => a.freq - b.freq); // Sort by frequency
-            frequencySelect.innerHTML = ''; // Clear existing options
-            frequenciesData.forEach(data => {
-                const option = document.createElement('option');
-                option.value = data.freq;
-                option.textContent = `${data.freq} Hz - ${data.purpose}`;
-                frequencySelect.appendChild(option);
-            });
+        function showModal(message) {
+            modalMessage.textContent = message;
+            customModal.classList.remove('hidden');
+        }
 
-            // Check if there's a frequency to play from localStorage
-            const storedFreq = localStorage.getItem(LOCAL_STORAGE_FREQ_KEY);
-            if (storedFreq) {
-                frequencySelect.value = storedFreq; // Select it in the dropdown
-                localStorage.removeItem(LOCAL_STORAGE_FREQ_KEY); // Clear it immediately
-                // Automatically load and play this frequency after a short delay to ensure DOM is ready
-                setTimeout(() => {
-                    loadAndPlaySelectedFrequency();
-                }, 100);
+        function hideModal() {
+            customModal.classList.add('hidden');
+        }
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+
+        function syncPlayPauseIcons(isPaused) {
+            if (isPaused) {
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+                smallPlayIcon.classList.remove('hidden');
+                smallPauseIcon.classList.add('hidden');
+                nowPlayingSection.classList.remove('playing');
             } else {
-                // Set initial display based on the first frequency if no stored one
-                if (frequenciesData.length > 0) {
-                    const initialFreqData = frequenciesData[0];
-                    currentFrequencySpan.textContent = `${initialFreqData.freq} Hz`;
-                    currentPurposeSpan.textContent = initialFreqData.purpose;
-                }
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+                smallPlayIcon.classList.add('hidden');
+                smallPauseIcon.classList.remove('hidden');
+                nowPlayingSection.classList.add('playing');
             }
         }
 
-        // Function to load and play the selected frequency
-        function loadAndPlaySelectedFrequency() {
-            const selectedFreqValue = parseFloat(frequencySelect.value);
-            const selectedFreqData = frequenciesData.find(d => d.freq === selectedFreqValue);
-            const selectedTimerDuration = parseInt(timerSelect.value); // Get selected timer duration in milliseconds
-
+        function loadAndPlaySelectedFrequency(index) {
+            currentTrackIndex = index;
+            const selectedFreqData = frequenciesData[currentTrackIndex];
+            const selectedTimerDuration = timerSelect ? parseInt(timerSelect.value) : 0;
+            
             if (selectedFreqData) {
-                currentLoadedFrequencyData = selectedFreqData;
+                document.querySelectorAll('.frequency-list-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                const selectedItem = document.getElementById(`freq-${selectedFreqData.freq}`);
+                if (selectedItem) {
+                    selectedItem.classList.add('selected');
+                }
 
-                // Clear any existing timers
-                clearTimer();
-
-                // Update current frequency and purpose display
                 currentFrequencySpan.textContent = `${selectedFreqData.freq} Hz`;
                 currentPurposeSpan.textContent = selectedFreqData.purpose;
 
-                // Display cover image within the HTML
                 coverImage.src = selectedFreqData.coverImage;
-                coverImage.alt = `Cover for ${selectedFreqData.freq} Hz`;
+                coverImage.alt = `Portada para ${selectedFreqData.freq} Hz`;
 
-                // Set audio source and load, adding a cache-busting parameter
-                audioPlayer.src = `${selectedFreqData.audioSrc}?v=${Date.now()}`; // Add unique timestamp for cache busting
-                audioPlayer.load(); // Load the new audio
+                audioPlayer.src = `${selectedFreqData.audioSrc}?v=${Date.now()}`;
+                audioPlayer.load();
+
+                loadingIndicator.classList.remove('hidden');
+                playPauseButton.disabled = true;
+                smallPlayPauseButton.disabled = true;
+                nowPlayingSection.classList.add('hidden');
+                progressContainer.classList.add('hidden');
                 
-                loadingIndicator.classList.remove('hidden'); // Show loading indicator
-                nowPlayingSection.classList.remove('hidden'); // Show the now playing section
-
-                // Play audio once it can be played
                 audioPlayer.oncanplaythrough = () => {
-                    loadingIndicator.classList.add('hidden'); // Hide loading indicator
-                    audioPlayer.play().catch(e => console.error("Error al reproducir el audio:", e));
-                    playPauseButton.textContent = 'Pausar'; // Update button text
+                    playPauseButton.disabled = false;
+                    smallPlayPauseButton.disabled = false;
+                    loadingIndicator.classList.add('hidden');
+                    nowPlayingSection.classList.remove('hidden');
+                    progressContainer.classList.remove('hidden');
+                    
+                    audioPlayer.play().catch(e => console.error("Error reproduciendo el audio:", e));
+                    syncPlayPauseIcons(false);
 
-                    // *** NUEVA SECCIÓN PARA LA MEDIA SESSION API ***
-                    if ('mediaSession' in navigator) { // Comprueba si el navegador soporta la API
+                    if ('mediaSession' in navigator) {
                         navigator.mediaSession.metadata = new MediaMetadata({
-                            title: `Frecuencia ${selectedFreqData.freq} Hz`, // Título que aparecerá en el reproductor del móvil
-                            artist: 'Frecuencias Sanadoras', // Puedes poner tu nombre o el del canal
-                            album: 'Reproductor de Frecuencias Milagrosas', // Nombre del "álbum"
-                            artwork: [ // La imagen de portada, se pueden definir varios tamaños
-                                // Es buena práctica definir varios tamaños si tienes, pero con uno es suficiente
-                                { src: selectedFreqData.coverImage, sizes: '96x96', type: 'image/png' }, // Ajusta el tipo si es JPG, etc.
-                                { src: selectedFreqData.coverImage, sizes: '128x128', type: 'image/png' },
-                                { src: selectedFreqData.coverImage, sizes: '192x192', type: 'image/png' },
-                                { src: selectedFreqData.coverImage, sizes: '256x256', type: 'image/png' },
-                                { src: selectedFreqData.coverImage, sizes: '384x384', type: 'image/png' },
+                            title: `Frecuencia ${selectedFreqData.freq} Hz`,
+                            artist: 'Frecuencias Sanadoras',
+                            album: 'Reproductor de Frecuencias Milagrosas',
+                            artwork: [
+                                { src: selectedFreqData.coverImage, sizes: '96x96', type: 'image/png' },
                                 { src: selectedFreqData.coverImage, sizes: '512x512', type: 'image/png' },
                             ]
                         });
-
-                        // Opcional: Esto permite que los controles de medios del sistema operativo (pausar/reproducir) funcionen
-                        navigator.mediaSession.setActionHandler('play', () => { audioPlayer.play(); playPauseButton.textContent = 'Pausar'; });
-                        navigator.mediaSession.setActionHandler('pause', () => { audioPlayer.pause(); playPauseButton.textContent = 'Reproducir'; });
+                        navigator.mediaSession.setActionHandler('play', () => { audioPlayer.play(); syncPlayPauseIcons(false); });
+                        navigator.mediaSession.setActionHandler('pause', () => { audioPlayer.pause(); syncPlayPauseIcons(true); });
                         navigator.mediaSession.setActionHandler('stop', () => { stopSelectedFrequency(); });
-                        // Note: 'seekbackward', 'seekforward', 'previoustrack', 'nexttrack' might be relevant for some players
                     }
-                    // *** FIN DE LA NUEVA SECCIÓN ***
 
-                    // Start timer if a duration is selected
                     if (selectedTimerDuration > 0) {
                         endTime = Date.now() + selectedTimerDuration;
                         timerDisplay.classList.remove('hidden');
-                        updateTimerDisplay(); // Initial display
-                        timerIntervalId = setInterval(updateTimerDisplay, 1000); // Update every second
-
+                        updateTimerDisplay();
+                        timerIntervalId = setInterval(updateTimerDisplay, 1000);
                         timerTimeoutId = setTimeout(() => {
                             stopSelectedFrequency();
-                            alert('El temporizador ha finalizado. La frecuencia se ha detenido.');
+                            showModal('El temporizador ha finalizado. La frecuencia se ha detenido.');
                         }, selectedTimerDuration);
                     } else {
-                        timerDisplay.classList.add('hidden'); // Hide timer if no duration selected
+                        timerDisplay.classList.add('hidden');
                     }
                 };
 
                 audioPlayer.onerror = (e) => {
                     loadingIndicator.classList.add('hidden');
                     console.error("Error al cargar o reproducir el audio:", e.target.error.code, e.target.error.message, e);
-                    alert(`Error al cargar el audio. Esto puede deberse a que la URL del archivo no es directa o hay problemas de CORS. Por favor, verifica la URL del archivo y asegúrate de que esté alojado para streaming (ej. Cloudinary, GitHub Pages, Netlify). Código de error: ${e.target.error.code || 'N/A'}. Revisa la consola (F12) para más detalles.`);
+                    showModal(`Error al cargar el audio. Esto puede deberse a que la URL del archivo no es directa o hay problemas de CORS. Por favor, verifica la consola (F12) para más detalles.`);
                     stopSelectedFrequency();
                 };
-
-            } else {
-                console.error("No se encontraron datos para la frecuencia seleccionada.");
-                stopSelectedFrequency(); // Clear if no data found
             }
         }
 
-        // Function to toggle play/pause
         function togglePlayPause() {
             if (audioPlayer.paused) {
-                audioPlayer.play().catch(e => console.error("Error al reproducir el audio:", e));
-                playPauseButton.textContent = 'Pausar';
-                // If a timer was set and audio was paused, resume timer as well
+                audioPlayer.play().catch(e => console.error("Error reproduciendo el audio:", e));
+                syncPlayPauseIcons(false);
                 if (endTime > 0 && timerTimeoutId === null) {
                     const remainingTime = endTime - Date.now();
                     if (remainingTime > 0) {
                         timerTimeoutId = setTimeout(() => {
                             stopSelectedFrequency();
-                            alert('El temporizador ha finalizado. La frecuencia se ha detenido.');
+                            showModal('El temporizador ha finalizado. La frecuencia se ha detenido.');
                         }, remainingTime);
                         timerIntervalId = setInterval(updateTimerDisplay, 1000);
                         timerDisplay.classList.remove('hidden');
@@ -323,8 +526,7 @@
                 }
             } else {
                 audioPlayer.pause();
-                playPauseButton.textContent = 'Reproducir';
-                // Pause timer as well
+                syncPlayPauseIcons(true);
                 clearTimeout(timerTimeoutId);
                 clearInterval(timerIntervalId);
                 timerTimeoutId = null;
@@ -332,23 +534,29 @@
             }
         }
 
-        // Function to stop/clear the currently loaded frequency
         function stopSelectedFrequency() {
-            clearTimer(); // Clear any active timers
+            clearTimer();
             audioPlayer.pause();
-            audioPlayer.currentTime = 0; // Reset playback to start
-            audioPlayer.src = ''; // Clear audio source. This prevents "Empty src attribute" errors.
-            coverImage.src = ''; // Clear cover image
-            coverImage.alt = 'Cover Art';
-            nowPlayingSection.classList.add('hidden'); // Hide the now playing section
-            loadingIndicator.classList.add('hidden'); // Hide loading indicator
-            currentLoadedFrequencyData = null; // Clear loaded frequency data
+            audioPlayer.currentTime = 0;
+            audioPlayer.src = '';
+            coverImage.src = '';
+            coverImage.alt = 'Portada';
+            loadingIndicator.classList.add('hidden');
+            nowPlayingSection.classList.add('hidden');
+            progressContainer.classList.add('hidden');
             currentFrequencySpan.textContent = '0 Hz';
-            currentPurposeSpan.textContent = 'Ninguno seleccionado';
-            playPauseButton.textContent = 'Reproducir'; // Reset button text
+            currentPurposeSpan.textContent = 'Ninguna seleccionada';
+            syncPlayPauseIcons(true);
+            progressSlider.value = 0;
+            currentTimeDisplay.textContent = '0:00';
+            durationDisplay.textContent = '0:00';
+            audioPlayer.volume = volumeSlider.value;
+            
+            document.querySelectorAll('.frequency-list-item').forEach(item => {
+                item.classList.remove('selected');
+            });
         }
 
-        // Function to clear any active timers
         function clearTimer() {
             if (timerTimeoutId) {
                 clearTimeout(timerTimeoutId);
@@ -358,20 +566,19 @@
                 clearInterval(timerIntervalId);
                 timerIntervalId = null;
             }
-            timerDisplay.classList.add('hidden'); // Hide timer display
-            timeRemainingSpan.textContent = ''; // Clear time remaining
+            timerDisplay.classList.add('hidden');
+            timeRemainingSpan.textContent = '';
             endTime = 0;
         }
 
-        // Function to update the timer display
         function updateTimerDisplay() {
             const now = Date.now();
             const remaining = endTime - now;
 
             if (remaining <= 0) {
                 timeRemainingSpan.textContent = '00:00:00';
-                clearTimer(); // Timer has finished, clear it
-                stopSelectedFrequency(); // Ensure audio stops if timer ends
+                clearTimer();
+                stopSelectedFrequency();
                 return;
             }
 
@@ -379,49 +586,42 @@
             const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
 
-            timeRemainingSpan.textContent =
-                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            timeRemainingSpan.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
+        
+        // Event Listeners
+        playPauseButton.addEventListener('click', togglePlayPause);
+        smallPlayPauseButton.addEventListener('click', togglePlayPause);
 
-        // Event listener for Play/Pause button
-        playPauseButton.addEventListener('click', () => {
-            // If no frequency is loaded, load and play the selected one
-            if (!currentLoadedFrequencyData || audioPlayer.src === '') {
-                loadAndPlaySelectedFrequency();
-            } else {
-                // Otherwise, just toggle play/pause
-                togglePlayPause();
-            }
+        audioPlayer.addEventListener('loadedmetadata', () => {
+            progressSlider.max = audioPlayer.duration;
+            durationDisplay.textContent = formatTime(audioPlayer.duration);
         });
 
-        // Event listener for Stop button
-        stopButton.addEventListener('click', stopSelectedFrequency);
-
-        // Event listener for frequency selection change (updates purpose, doesn't auto-play)
-        frequencySelect.addEventListener('change', () => {
-            const selectedFreqValue = parseFloat(frequencySelect.value);
-            const selectedFreqData = frequenciesData.find(d => d.freq === selectedFreqValue);
-            if (selectedFreqData) {
-                currentFrequencySpan.textContent = `${selectedFreqData.freq} Hz`;
-                currentPurposeSpan.textContent = selectedFreqData.purpose;
-                // If audio is playing or loaded, store the selection and force a page reload
-                if (audioPlayer.src !== '') { // Check if a source is currently set
-                    localStorage.setItem(LOCAL_STORAGE_FREQ_KEY, selectedFreqValue); // Store the new selection
-                    location.reload(); // Force a full page refresh
-                } else {
-                    // If no audio is loaded, just update display and wait for play button
-                    stopSelectedFrequency(); // Ensure clean state if changing selection without playing
-                }
-            }
+        audioPlayer.addEventListener('timeupdate', () => {
+            progressSlider.value = audioPlayer.currentTime;
+            currentTimeDisplay.textContent = formatTime(audioPlayer.currentTime);
         });
 
-        // Listen for when the audio finishes playing on its own
+        progressSlider.addEventListener('input', () => {
+            audioPlayer.currentTime = progressSlider.value;
+        });
+
+        volumeSlider.addEventListener('input', () => {
+            audioPlayer.volume = volumeSlider.value;
+        });
+
         audioPlayer.addEventListener('ended', () => {
             stopSelectedFrequency();
-            alert('La reproducción de la frecuencia ha finalizado.');
         });
 
-        // --- Recommendation Logic ---
+        modalCloseButton.addEventListener('click', hideModal);
+
+        toggleListButton.addEventListener('click', () => {
+            frequencyListContainer.classList.toggle('open');
+            toggleListIcon.classList.toggle('rotate-180');
+        });
+
         function recommendFrequency() {
             const userInput = userNeedInput.value.toLowerCase().trim();
             if (!userInput) {
@@ -435,7 +635,6 @@
 
             frequenciesData.forEach(data => {
                 let score = 0;
-                // Combine purpose and chakra for keyword matching
                 const keywords = (data.purpose + ' ' + data.chakra).toLowerCase().split(/[\s,/\-]+/).filter(Boolean);
 
                 keywords.forEach(keyword => {
@@ -444,16 +643,14 @@
                     }
                 });
 
-                // Add score for direct frequency numbers if mentioned (unlikely but possible)
                 if (userInput.includes(data.freq.toString())) {
-                    score += 2; // Higher score for direct mention
+                    score += 2;
                 }
 
                 if (score > maxScore) {
                     maxScore = score;
                     bestMatch = data;
                 } else if (score === maxScore && bestMatch === null) {
-                    // If multiple have same score, take the first one found
                     bestMatch = data;
                 }
             });
@@ -462,39 +659,50 @@
                 recommendationOutput.innerHTML = `
                     <p class="mb-2">Te recomendamos la frecuencia de <span class="font-bold text-yellow-400">${bestMatch.freq} Hz</span>.</p>
                     <p>Su propósito es: <span class="font-bold">${bestMatch.purpose}</span>.</p>
-                    <p class="mt-2 text-sm text-gray-300">Puedes seleccionarla en el reproductor de arriba y hacer clic en "Reproducir" para escucharla.</p>
+                    <p class="mt-2 text-sm text-gray-300">Puedes seleccionarla de la lista para escucharla.</p>
                 `;
                 recommendationOutput.classList.remove('hidden');
-                // Automatically select the recommended frequency in the dropdown
-                frequencySelect.value = bestMatch.freq;
-                // Update display immediately (but don't auto-play the audio)
-                currentFrequencySpan.textContent = `${bestMatch.freq} Hz`;
-                currentPurposeSpan.textContent = bestMatch.purpose;
+                const recommendedIndex = frequenciesData.findIndex(d => d.freq === bestMatch.freq);
+                loadAndPlaySelectedFrequency(recommendedIndex);
             } else {
                 recommendationOutput.textContent = "No pude encontrar una frecuencia que coincida directamente con tu descripción. Por favor, intenta con otras palabras o explora las frecuencias manualmente.";
                 recommendationOutput.classList.remove('hidden');
             }
         }
 
-        // Event listener for recommend button
         recommendButton.addEventListener('click', recommendFrequency);
 
-        // Initial population of frequencies when the page loads
-        document.addEventListener('DOMContentLoaded', populateFrequencies);
+        document.addEventListener('DOMContentLoaded', () => {
+            frequenciesData.sort((a, b) => a.freq - b.freq);
+            
+            frequencyListContainer.innerHTML = frequenciesData.map((data, index) => `
+                <div class="frequency-list-item" id="freq-${data.freq}" data-index="${index}">
+                    <img src="${data.coverImage}" alt="Portada para ${data.freq} Hz" class="w-12 h-12 rounded-md object-cover">
+                    <div class="flex flex-col text-left">
+                        <span class="text-white font-semibold text-base">${data.freq} Hz</span>
+                        <span class="text-gray-400 text-sm">${data.purpose}</span>
+                    </div>
+                </div>
+            `).join('');
 
-        // --- PWA: Registro del Service Worker (NUEVA SECCIÓN) ---
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(registration => {
-                        console.log('Service Worker registrado con éxito:', registration);
-                    })
-                    .catch(error => {
-                        console.error('Fallo el registro del Service Worker:', error);
-                    });
+            document.querySelectorAll('.frequency-list-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const index = parseInt(item.getAttribute('data-index'));
+                    loadAndPlaySelectedFrequency(index);
+                });
             });
-        }
-        // --- FIN de la NUEVA SECCIÓN ---
+
+            if (frequenciesData.length > 0) {
+                const initialFreqData = frequenciesData[0];
+                currentFrequencySpan.textContent = `${initialFreqData.freq} Hz`;
+                currentPurposeSpan.textContent = initialFreqData.purpose;
+                coverImage.src = initialFreqData.coverImage;
+                coverImage.alt = `Portada para ${initialFreqData.freq} Hz`;
+                document.getElementById(`freq-${initialFreqData.freq}`).classList.add('selected');
+            }
+
+            audioPlayer.volume = volumeSlider.value;
+        });
     </script>
 </body>
 </html>
