@@ -87,6 +87,7 @@
                     setTimeout(() => {
                         // Redirigir a la página principal del reproductor
                         window.location.href = 'index.html'; 
+                        localStorage.setItem('isLoggedIn', 'true');
                     }, 1000);
                 } else {
                     // Login fallido
