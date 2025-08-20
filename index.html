@@ -2,7 +2,7 @@
 <html lang="es">
 <head><script>
         // Si el usuario no tiene una sesión activa, lo redirige a la página de login
-        if (localStorage.getItem('isLoggedIn') !== 'true') {
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
             window.location.href = 'login.html';
         }
     </script>
