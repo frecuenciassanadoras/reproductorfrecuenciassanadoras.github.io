@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
+<head><script>
+        // Si el usuario no tiene una sesión activa, lo redirige a la página de login
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z4L1KNECXV"></script>
 <script>
