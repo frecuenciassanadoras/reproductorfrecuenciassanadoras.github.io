@@ -1,20 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
-<head><script>
+<head>
+    <script>
         // Si el usuario no tiene una sesión activa, lo redirige a la página de login
         if (sessionStorage.getItem('isLoggedIn') !== 'true') {
             window.location.href = 'login.html';
         }
     </script>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-Z4L1KNECXV"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-Z4L1KNECXV');
-</script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z4L1KNECXV"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-Z4L1KNECXV');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reproductor de Frecuencias Milagrosas</title>
@@ -243,7 +242,6 @@
     </style>
 </head>
 <body class="bg-gray-900 text-white">
-    <!-- Custom Modal Structure -->
     <div id="custom-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <p id="modal-message" class="text-white text-lg mb-4"></p>
@@ -254,12 +252,9 @@
     </div>
 
     <div class="main-container container mx-auto p-4 md:p-6 rounded-xl shadow-2xl max-w-4xl w-full flex flex-col lg:flex-row gap-6 lg:gap-8">
-        <!-- Player Section -->
         <div class="flex-1 p-4 md:p-6 bg-gray-900 bg-opacity-80 rounded-lg shadow-lg player-container">
-            <!-- No title here, for a cleaner, more mobile-centric look -->
             <div class="player-content">
                 <div class="text-center mb-6 w-full">
-                    <!-- Dynamic cover image -->
                     <img id="cover-image" src="" alt="Portada" class="mx-auto rounded-lg shadow-md max-w-full h-auto" style="max-width: 250px;">
                 </div>
 
@@ -279,7 +274,6 @@
                         <span id="duration-display">0:00</span>
                     </div>
                     <div class="flex justify-center mt-2">
-                        <!-- Botón de play pequeño bajo el contador -->
                         <button id="small-play-pause-button" class="main-play-button w-12 h-12">
                             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path id="small-play-icon" d="M8 5V19L19 12L8 5Z" fill="white"/>
@@ -318,11 +312,9 @@
             </div>
         </div>
 
-        <!-- Recommender and Frequency List Section -->
         <div class="flex-1 p-4 md:p-6 bg-gray-900 bg-opacity-80 rounded-lg shadow-lg">
             <h2 class="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-center text-blue-300">¿Qué necesitas? (Recomendador de Frecuencias)</h2>
             
-            <!-- Timer select dropdown has been added back here -->
             <div class="mb-4 md:mb-6">
                 <label for="timer-select" class="block text-base md:text-lg font-medium text-gray-300 mb-2">Reproducir durante:</label>
                 <select id="timer-select" class="w-full p-2 md:p-3 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 text-white transition duration-300 ease-in-out">
@@ -345,7 +337,6 @@
             <div id="recommendation-output" class="p-4 bg-gray-700 border border-gray-600 rounded-md shadow-inner text-center text-base md:text-lg text-yellow-200 hidden">
             </div>
 
-            <!-- Frequency List Section with collapsible button -->
             <div class="frequency-list-container mt-8">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-xl font-bold text-gray-200">Frecuencias Disponibles</h3>
@@ -354,8 +345,7 @@
                     </button>
                 </div>
                 <div id="frequency-list" class="frequency-list open">
-                    <!-- Frequency items will be dynamically inserted here -->
-                </div>
+                    </div>
             </div>
         </div>
     </div>
@@ -409,7 +399,6 @@
         const nowPlayingSection = document.getElementById('now-playing-section');
         const progressContainer = document.getElementById('progress-container');
 
-
         let currentTrackIndex = 0;
         let timerTimeoutId = null;
         let timerIntervalId = null;
@@ -445,12 +434,56 @@
                 nowPlayingSection.classList.add('playing');
             }
         }
+        
+        // --- MODIFICACIONES A PARTIR DE AQUÍ ---
+
+        function stopPlayback() {
+            audioPlayer.pause();
+            audioPlayer.currentTime = 0;
+            syncPlayPauseIcons(true);
+            progressSlider.value = 0;
+            currentTimeDisplay.textContent = '0:00';
+            document.querySelectorAll('.frequency-list-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+        }
+        
+        function handleAudioEnd() {
+            clearTimer(); // Limpia cualquier temporizador activo.
+
+            // Comprueba si se debe volver a reproducir
+            const selectedTimerDuration = timerSelect ? parseInt(timerSelect.value) : 0;
+            if (selectedTimerDuration > 0) {
+                // Si hay temporizador, se detiene y muestra el modal
+                stopPlayback();
+                showModal('El temporizador ha finalizado. La frecuencia se ha detenido.');
+            } else {
+                // Si no hay temporizador, simplemente pausa y resetea el progreso
+                stopPlayback();
+            }
+        }
+
+        function clearTimer() {
+            if (timerTimeoutId) {
+                clearTimeout(timerTimeoutId);
+                timerTimeoutId = null;
+            }
+            if (timerIntervalId) {
+                clearInterval(timerIntervalId);
+                timerIntervalId = null;
+            }
+            timerDisplay.classList.add('hidden');
+            timeRemainingSpan.textContent = '';
+            endTime = 0;
+        }
 
         function loadAndPlaySelectedFrequency(index) {
             currentTrackIndex = index;
             const selectedFreqData = frequenciesData[currentTrackIndex];
             const selectedTimerDuration = timerSelect ? parseInt(timerSelect.value) : 0;
             
+            clearTimer(); // Asegura que el temporizador anterior se detenga.
+
             if (selectedFreqData) {
                 document.querySelectorAll('.frequency-list-item').forEach(item => {
                     item.classList.remove('selected');
@@ -474,15 +507,18 @@
                 smallPlayPauseButton.disabled = true;
                 nowPlayingSection.classList.add('hidden');
                 progressContainer.classList.add('hidden');
-                
+
                 audioPlayer.oncanplaythrough = () => {
                     playPauseButton.disabled = false;
                     smallPlayPauseButton.disabled = false;
                     loadingIndicator.classList.add('hidden');
                     nowPlayingSection.classList.remove('hidden');
                     progressContainer.classList.remove('hidden');
-                    
-                    audioPlayer.play().catch(e => console.error("Error reproduciendo el audio:", e));
+
+                    audioPlayer.play().catch(e => {
+                        console.error("Error reproduciendo el audio:", e);
+                        showModal("Error al intentar reproducir el audio. Puede haber un problema con la URL del archivo.");
+                    });
                     syncPlayPauseIcons(false);
 
                     if ('mediaSession' in navigator) {
@@ -497,7 +533,7 @@
                         });
                         navigator.mediaSession.setActionHandler('play', () => { audioPlayer.play(); syncPlayPauseIcons(false); });
                         navigator.mediaSession.setActionHandler('pause', () => { audioPlayer.pause(); syncPlayPauseIcons(true); });
-                        navigator.mediaSession.setActionHandler('stop', () => { stopSelectedFrequency(); });
+                        navigator.mediaSession.setActionHandler('stop', () => { stopPlayback(); });
                     }
 
                     if (selectedTimerDuration > 0) {
@@ -506,8 +542,7 @@
                         updateTimerDisplay();
                         timerIntervalId = setInterval(updateTimerDisplay, 1000);
                         timerTimeoutId = setTimeout(() => {
-                            stopSelectedFrequency();
-                            showModal('El temporizador ha finalizado. La frecuencia se ha detenido.');
+                            handleAudioEnd(); // Llama a la nueva función para manejar el fin del audio
                         }, selectedTimerDuration);
                     } else {
                         timerDisplay.classList.add('hidden');
@@ -518,11 +553,11 @@
                     loadingIndicator.classList.add('hidden');
                     console.error("Error al cargar o reproducir el audio:", e.target.error.code, e.target.error.message, e);
                     showModal(`Error al cargar el audio. Esto puede deberse a que la URL del archivo no es directa o hay problemas de CORS. Por favor, verifica la consola (F12) para más detalles.`);
-                    stopSelectedFrequency();
+                    stopPlayback();
                 };
             }
         }
-
+        
         function togglePlayPause() {
             if (audioPlayer.paused) {
                 audioPlayer.play().catch(e => console.error("Error reproduciendo el audio:", e));
@@ -531,8 +566,7 @@
                     const remainingTime = endTime - Date.now();
                     if (remainingTime > 0) {
                         timerTimeoutId = setTimeout(() => {
-                            stopSelectedFrequency();
-                            showModal('El temporizador ha finalizado. La frecuencia se ha detenido.');
+                            handleAudioEnd(); // Llama a la nueva función para manejar el fin del audio
                         }, remainingTime);
                         timerIntervalId = setInterval(updateTimerDisplay, 1000);
                         timerDisplay.classList.remove('hidden');
@@ -548,43 +582,6 @@
             }
         }
 
-        function stopSelectedFrequency() {
-            clearTimer();
-            audioPlayer.pause();
-            audioPlayer.currentTime = 0;
-            audioPlayer.src = '';
-            coverImage.src = '';
-            coverImage.alt = 'Portada';
-            loadingIndicator.classList.add('hidden');
-            nowPlayingSection.classList.add('hidden');
-            progressContainer.classList.add('hidden');
-            currentFrequencySpan.textContent = '0 Hz';
-            currentPurposeSpan.textContent = 'Ninguna seleccionada';
-            syncPlayPauseIcons(true);
-            progressSlider.value = 0;
-            currentTimeDisplay.textContent = '0:00';
-            durationDisplay.textContent = '0:00';
-            audioPlayer.volume = volumeSlider.value;
-            
-            document.querySelectorAll('.frequency-list-item').forEach(item => {
-                item.classList.remove('selected');
-            });
-        }
-
-        function clearTimer() {
-            if (timerTimeoutId) {
-                clearTimeout(timerTimeoutId);
-                timerTimeoutId = null;
-            }
-            if (timerIntervalId) {
-                clearInterval(timerIntervalId);
-                timerIntervalId = null;
-            }
-            timerDisplay.classList.add('hidden');
-            timeRemainingSpan.textContent = '';
-            endTime = 0;
-        }
-
         function updateTimerDisplay() {
             const now = Date.now();
             const remaining = endTime - now;
@@ -592,7 +589,7 @@
             if (remaining <= 0) {
                 timeRemainingSpan.textContent = '00:00:00';
                 clearTimer();
-                stopSelectedFrequency();
+                handleAudioEnd(); // Llama a la nueva función para manejar el fin del audio
                 return;
             }
 
@@ -602,7 +599,7 @@
 
             timeRemainingSpan.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
-        
+
         // Event Listeners
         playPauseButton.addEventListener('click', togglePlayPause);
         smallPlayPauseButton.addEventListener('click', togglePlayPause);
@@ -624,10 +621,9 @@
         volumeSlider.addEventListener('input', () => {
             audioPlayer.volume = volumeSlider.value;
         });
-
-        audioPlayer.addEventListener('ended', () => {
-            stopSelectedFrequency();
-        });
+        
+        // El event listener para 'ended' ha sido cambiado
+        audioPlayer.addEventListener('ended', handleAudioEnd);
 
         modalCloseButton.addEventListener('click', hideModal);
 
@@ -688,7 +684,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             frequenciesData.sort((a, b) => a.freq - b.freq);
-            
+
             frequencyListContainer.innerHTML = frequenciesData.map((data, index) => `
                 <div class="frequency-list-item" id="freq-${data.freq}" data-index="${index}">
                     <img src="${data.coverImage}" alt="Portada para ${data.freq} Hz" class="w-12 h-12 rounded-md object-cover">
