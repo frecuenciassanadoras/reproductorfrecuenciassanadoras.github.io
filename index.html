@@ -5,7 +5,7 @@
         // LÓGICA DE PROTECCIÓN (YA ACTUALIZADA)
         const token = localStorage.getItem('taller_token');
         if (!token) {
-            window.location.href = 'https://reproductor-frecuencias.netlify.app'; // Redirige a la URL de login si no hay token
+            window.location.href = 'login.html'; // Redirige a la página de login si no hay token
         }
     </script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z4L1KNECXV"></script>
@@ -230,11 +230,15 @@
                 border: 2px solid #9f7aea;
                 background-color: rgba(76, 52, 137, 0.8);
             }
+            .frequency-list-item img {
+                width: 50px;
+                height: 50px;
+                border-radius: 0.25rem;
+            }
         }
         .rotate-180 {
             transform: rotate(180deg);
         }
-        /* Botón de cierre de sesión */
         .logout-button {
             position: absolute;
             top: 1rem;
@@ -567,7 +571,7 @@
                 audioPlayer.play().catch(e => console.error("Error reproduciendo el audio:", e));
                 syncPlayPauseIcons(false);
                 if (endTime > 0 && timerTimeoutId === null) {
-                    const remainingTime = endTime - Date. 객체;
+                    const remainingTime = endTime - Date.now();
                     if (remainingTime > 0) {
                         timerTimeoutId = setTimeout(() => {
                             handleAudioEnd();
@@ -715,11 +719,12 @@
 
             audioPlayer.volume = volumeSlider.value;
         });
-        
+
         // CÓDIGO PARA EL CIERRE DE SESIÓN
         document.getElementById('logout-button').addEventListener('click', () => {
             localStorage.removeItem('taller_token'); 
-            window.location.href = 'https://reproductor-frecuencias.netlify.app'; 
+            // Deja el destino vacío para que el botón no haga nada por ahora
+            // window.location.href = ''; 
         });
     </script>
 </body>
