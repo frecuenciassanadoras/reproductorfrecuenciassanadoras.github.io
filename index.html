@@ -2,9 +2,13 @@
 <html lang="es">
 <head>
     <script>
-        // Si el usuario no tiene una sesión activa, lo redirige a la página de login
-        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
-            window.location.href = 'login.html';
+        // LÓGICA DE PROTECCIÓN CORREGIDA
+        // Ahora busca 'taller_token' en localStorage, tal como se guarda en la página de login.
+        const token = localStorage.getItem('taller_token');
+        if (!token) {
+            // Si el usuario no tiene una sesión activa, lo redirige a la página de login
+            // del reproductor, que asumiríamos que es login.html
+            window.location.href = 'login.html'; 
         }
     </script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z4L1KNECXV"></script>
@@ -22,7 +26,6 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            /* Background image and styling */
             background-image: url('https://res.cloudinary.com/df3hfnqhm/image/upload/v1752532743/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-14T170654.732_mhr13k.png');
             background-size: cover;
             background-position: center;
@@ -239,9 +242,21 @@
         .rotate-180 {
             transform: rotate(180deg);
         }
+        .logout-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: #e55353;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            z-index: 10;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white">
+    <button id="logout-button" class="logout-button">Cerrar Sesión</button>
     <div id="custom-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <p id="modal-message" class="text-white text-lg mb-4"></p>
@@ -345,7 +360,7 @@
                     </button>
                 </div>
                 <div id="frequency-list" class="frequency-list open">
-                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -622,7 +637,6 @@
             audioPlayer.volume = volumeSlider.value;
         });
         
-        // El event listener para 'ended' ha sido cambiado
         audioPlayer.addEventListener('ended', handleAudioEnd);
 
         modalCloseButton.addEventListener('click', hideModal);
@@ -712,6 +726,12 @@
             }
 
             audioPlayer.volume = volumeSlider.value;
+        });
+
+        // CÓDIGO PARA EL CIERRE DE SESIÓN
+        document.getElementById('logout-button').addEventListener('click', () => {
+            localStorage.removeItem('taller_token'); 
+            window.location.href = ''; 
         });
     </script>
 </body>
