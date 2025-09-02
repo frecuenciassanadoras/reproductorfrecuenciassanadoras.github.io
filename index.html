@@ -2,9 +2,10 @@
 <html lang="es">
 <head>
     <script>
-        // Si el usuario no tiene una sesión activa, lo redirige a la página de login
-        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
-            window.location.href = 'login.html';
+        // LÓGICA DE PROTECCIÓN (YA ACTUALIZADA)
+        const token = localStorage.getItem('taller_token');
+        if (!token) {
+            window.location.href = 'https://reproductor-frecuencias.netlify.app'; // Redirige a la URL de login si no hay token
         }
     </script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z4L1KNECXV"></script>
@@ -22,7 +23,6 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            /* Background image and styling */
             background-image: url('https://res.cloudinary.com/df3hfnqhm/image/upload/v1752532743/Dise%C3%B1o_sin_t%C3%ADtulo_-_2025-07-14T170654.732_mhr13k.png');
             background-size: cover;
             background-position: center;
@@ -230,18 +230,26 @@
                 border: 2px solid #9f7aea;
                 background-color: rgba(76, 52, 137, 0.8);
             }
-            .frequency-list-item img {
-                width: 50px;
-                height: 50px;
-                border-radius: 0.25rem;
-            }
         }
         .rotate-180 {
             transform: rotate(180deg);
         }
+        /* Botón de cierre de sesión */
+        .logout-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: #e55353;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            z-index: 10;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white">
+    <button id="logout-button" class="logout-button">Cerrar Sesión</button>
     <div id="custom-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <p id="modal-message" class="text-white text-lg mb-4"></p>
@@ -345,7 +353,7 @@
                     </button>
                 </div>
                 <div id="frequency-list" class="frequency-list open">
-                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -450,15 +458,11 @@
         
         function handleAudioEnd() {
             clearTimer(); // Limpia cualquier temporizador activo.
-
-            // Comprueba si se debe volver a reproducir
             const selectedTimerDuration = timerSelect ? parseInt(timerSelect.value) : 0;
             if (selectedTimerDuration > 0) {
-                // Si hay temporizador, se detiene y muestra el modal
                 stopPlayback();
                 showModal('El temporizador ha finalizado. La frecuencia se ha detenido.');
             } else {
-                // Si no hay temporizador, simplemente pausa y resetea el progreso
                 stopPlayback();
             }
         }
@@ -542,7 +546,7 @@
                         updateTimerDisplay();
                         timerIntervalId = setInterval(updateTimerDisplay, 1000);
                         timerTimeoutId = setTimeout(() => {
-                            handleAudioEnd(); // Llama a la nueva función para manejar el fin del audio
+                            handleAudioEnd();
                         }, selectedTimerDuration);
                     } else {
                         timerDisplay.classList.add('hidden');
@@ -563,10 +567,10 @@
                 audioPlayer.play().catch(e => console.error("Error reproduciendo el audio:", e));
                 syncPlayPauseIcons(false);
                 if (endTime > 0 && timerTimeoutId === null) {
-                    const remainingTime = endTime - Date.now();
+                    const remainingTime = endTime - Date. 객체;
                     if (remainingTime > 0) {
                         timerTimeoutId = setTimeout(() => {
-                            handleAudioEnd(); // Llama a la nueva función para manejar el fin del audio
+                            handleAudioEnd();
                         }, remainingTime);
                         timerIntervalId = setInterval(updateTimerDisplay, 1000);
                         timerDisplay.classList.remove('hidden');
@@ -589,7 +593,7 @@
             if (remaining <= 0) {
                 timeRemainingSpan.textContent = '00:00:00';
                 clearTimer();
-                handleAudioEnd(); // Llama a la nueva función para manejar el fin del audio
+                handleAudioEnd();
                 return;
             }
 
@@ -603,7 +607,6 @@
         // Event Listeners
         playPauseButton.addEventListener('click', togglePlayPause);
         smallPlayPauseButton.addEventListener('click', togglePlayPause);
-
         audioPlayer.addEventListener('loadedmetadata', () => {
             progressSlider.max = audioPlayer.duration;
             durationDisplay.textContent = formatTime(audioPlayer.duration);
@@ -622,7 +625,6 @@
             audioPlayer.volume = volumeSlider.value;
         });
         
-        // El event listener para 'ended' ha sido cambiado
         audioPlayer.addEventListener('ended', handleAudioEnd);
 
         modalCloseButton.addEventListener('click', hideModal);
@@ -712,6 +714,12 @@
             }
 
             audioPlayer.volume = volumeSlider.value;
+        });
+        
+        // CÓDIGO PARA EL CIERRE DE SESIÓN
+        document.getElementById('logout-button').addEventListener('click', () => {
+            localStorage.removeItem('taller_token'); 
+            window.location.href = 'https://reproductor-frecuencias.netlify.app'; 
         });
     </script>
 </body>
